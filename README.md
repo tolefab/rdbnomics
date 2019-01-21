@@ -81,7 +81,7 @@ Fetch one series from the dataset 'Doing Business' of WB provider with the link 
 df1 <- rdb_by_api_link('https://api.db.nomics.world/v22/series/WB/DB?dimensions=%7B%22country%22%3A%5B%22FR%22%2C%22IT%22%2C%22ES%22%5D%7D&q=IC.REG.PROC.FE.NO&observations=1&format=json&align_periods=1&offset=0&facets=0')
 ```
 
-# Proxy configuration or connection error `Could not resolve host`
+## Proxy configuration or connection error `Could not resolve host`
 When using the functions `rdb` or `rdb_by_api_link`, you may come across the following error :
 ```r
 Error in open.connection(con, "rb") :
@@ -93,7 +93,7 @@ To get round this situation, you have two options :
 
 2. use the default R internet connection i.e. the Internet Explorer proxy setting defined in *internet2.dll*.
 
-## Set up **curl** to use a specific and authorized proxy
+### Set up **curl** to use a specific and authorized proxy
 In **rdbnomics**, by default the function `curl_fetch_memory` (of the package **curl**) is used to fetch the data. If a specific proxy must be used, it is possible to set it up permanently with the package option `rdbnomics.curl_config` or on the fly through the argument `curl_config`. Thus the object is passed to the argument `handle` of the `curl_fetch_memory` function.  
 To see the available parameters, run `names(curl_options())` in R or visit the website <a href="https://curl.haxx.se/libcurl/c/curl_easy_setopt.html" target="_blank">https://curl.haxx.se/libcurl/c/curl_easy_setopt.html</a>. Once they are chosen, you define them as follows :
 ```r
@@ -128,7 +128,7 @@ h <- curl::new_handle(
 df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN', curl_config = h)
 ```
 
-## Use the default R internet connection
+### Use the default R internet connection
 To retrieve the data with the default R internet connection, **rdbnomics** will use the base function `readLines`. To activate this feature, you need to enable an option of the package :
 ```r
 options(rdbnomics.use_readLines = TRUE)
