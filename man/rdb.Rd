@@ -6,6 +6,7 @@
 \usage{
 rdb(provider_code = NULL, dataset_code = NULL, ids = NULL,
   dimensions = NULL, mask = NULL,
+  filters = getOption("rdbnomics.filters"),
   verbose = getOption("rdbnomics.verbose_warning"), ...)
 }
 \arguments{
@@ -25,6 +26,8 @@ package \pkg{jsonlite}) is applied to generate the json object.}
 
 \item{mask}{Character string (default \code{NULL}). DBnomics code of one or
 several masks in the specified provider and dataset.}
+
+\item{filters}{Named list.}
 
 \item{verbose}{Logical (default \code{TRUE}). Show warnings of the function.}
 
@@ -119,6 +122,15 @@ h <- curl::new_handle(
 )
 options(rdbnomics.curl_config = h)
 df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN')
+# or
+h <- list(
+  proxy = "<proxy>",
+  proxyport = <port>,
+  proxyusername = "<username>",
+  proxypassword = "<password>"
+)
+options(rdbnomics.curl_config = h)
+df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN')
 # or to use once
 df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN', curl_config = h)
 
@@ -130,6 +142,30 @@ df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN')
 # or to use once
 df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN', use_readLines = TRUE)
 }
+
+
+## Apply filter(s) to series
+df1 <- rdb(
+  ids = c("IMF/WEO/ABW.BCA", "IMF/WEO/ABW.BCA_NGDPD"),
+  filters = list(
+    code = "interpolate",
+    parameters = list(frequency = "daily", method = "spline")
+  )
+)
+
+df1 <- rdb(
+  ids = c("IMF/WEO/ABW.BCA", "IMF/WEO/ABW.BCA_NGDPD"),
+  filters = list(
+    list(
+      code = "interpolate",
+      parameters = list(frequency = "quarterly", method = "spline")
+    ),
+    list(
+      code = "aggregate",
+      parameters = list(frequency = "annual", method = "average")
+    )
+  )
+)
 }
 \seealso{
 \code{\link{rdb_by_api_link}}

@@ -1,7 +1,7 @@
 Package: rdbnomics
 Type: Package
 Title: Download DBnomics Data
-Version: 0.4.7
+Version: 0.5.0
 Authors@R: c(person("Thomas", "Brand", role = c("aut"),
                      email = "thomas.brand@cepremap.org"),
              person("Sebastien", "Galais", role = c("cre", "ctb"),

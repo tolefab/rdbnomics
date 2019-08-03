@@ -29,6 +29,7 @@
 #' @param mask Character string (default \code{NULL}). DBnomics code of one or
 #' several masks in the specified provider and dataset.
 #' @param verbose Logical (default \code{TRUE}). Show warnings of the function.
+#' @param filters Named list.
 #' @param ... Arguments to be passed to \code{\link{rdb_by_api_link}}. These
 #' arguments concern connection configuration. See \code{\link{rdb_by_api_link}}
 #' for details.
@@ -99,6 +100,15 @@
 #' )
 #' options(rdbnomics.curl_config = h)
 #' df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN')
+#' # or
+#' h <- list(
+#'   proxy = "<proxy>",
+#'   proxyport = <port>,
+#'   proxyusername = "<username>",
+#'   proxypassword = "<password>"
+#' )
+#' options(rdbnomics.curl_config = h)
+#' df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN')
 #' # or to use once
 #' df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN', curl_config = h)
 #'
@@ -110,11 +120,36 @@
 #' # or to use once
 #' df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN', use_readLines = TRUE)
 #' }
+#' 
+#' 
+#' ## Apply filter(s) to series
+#' df1 <- rdb(
+#'   ids = c("IMF/WEO/ABW.BCA", "IMF/WEO/ABW.BCA_NGDPD"),
+#'   filters = list(
+#'     code = "interpolate",
+#'     parameters = list(frequency = "daily", method = "spline")
+#'   )
+#' )
+#' 
+#' df1 <- rdb(
+#'   ids = c("IMF/WEO/ABW.BCA", "IMF/WEO/ABW.BCA_NGDPD"),
+#'   filters = list(
+#'     list(
+#'       code = "interpolate",
+#'       parameters = list(frequency = "quarterly", method = "spline")
+#'     ),
+#'     list(
+#'       code = "aggregate",
+#'       parameters = list(frequency = "annual", method = "average")
+#'     )
+#'   )
+#' )
 #' @seealso \code{\link{rdb_by_api_link}}
 #' @export
 rdb <- function(
   provider_code = NULL, dataset_code = NULL,
   ids = NULL, dimensions = NULL, mask = NULL,
+  filters = getOption("rdbnomics.filters"),
   verbose = getOption("rdbnomics.verbose_warning"),
   ...
 ) {
@@ -133,7 +168,6 @@ rdb <- function(
   # Setting API metadata
   metadata <- getOption("rdbnomics.metadata")
   check_argument(metadata, "logical")
-  metadata <- as.numeric(metadata)
 
   # Building API base url
   api_base_url <- paste0(api_base_url, "/v", api_version, "/series")
@@ -219,7 +253,8 @@ rdb <- function(
     } else if (api_version == 22) {
       link <- paste0(
         api_base_url, "/", provider_code, "/", dataset_code,
-        "?metadata=", metadata, "&observations=1&dimensions=", dimensions
+        ifelse(metadata, "?", paste0("?metadata=", as.numeric(metadata), "&")),
+        "observations=1&dimensions=", dimensions
       )
     } else {
       stop(
@@ -228,7 +263,7 @@ rdb <- function(
       )
     }
 
-    return(rdb_by_api_link(api_link = link, ...))
+    return(rdb_by_api_link(api_link = link, filters = filters, ...))
   }
 
   # By mask
@@ -255,7 +290,9 @@ rdb <- function(
     } else if (api_version == 22) {
       link <- paste0(
         api_base_url, "/", provider_code, "/", dataset_code,
-        "/", mask, "?metadata=", metadata, "&observations=1"
+        "/", mask,
+        ifelse(metadata, "?", paste0("?metadata=", as.numeric(metadata), "&")),
+        "observations=1"
       )
     } else {
       stop(
@@ -264,7 +301,7 @@ rdb <- function(
       )
     }
 
-    return(rdb_by_api_link(api_link = link, ...))
+    return(rdb_by_api_link(api_link = link, filters = filters, ...))
   }
 
   # By ids
@@ -293,7 +330,9 @@ rdb <- function(
       )
     } else if (api_version == 22) {
       link <- paste0(
-        api_base_url, "?metadata=", metadata, "&observations=1&series_ids=",
+        api_base_url,
+        ifelse(metadata, "?", paste0("?metadata=", as.numeric(metadata), "&")),
+        "observations=1&series_ids=",
         paste(ids, collapse = ",")
       )
     } else {
@@ -303,7 +342,7 @@ rdb <- function(
       )
     }
 
-    return(rdb_by_api_link(api_link = link, ...))
+    return(rdb_by_api_link(api_link = link, filters = filters, ...))
   }
 
   stop("Please provide correct 'dimensions', 'mask' or 'ids'.", call. = FALSE)
