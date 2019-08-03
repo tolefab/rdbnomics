@@ -130,7 +130,7 @@ rdb_by_api_link <- function(
           "or a named list ('frequency' and 'method')."
         ),
         "\n",
-        "For more informations, visit <https://editor.dbnomics.org/filters>.",
+        "For more informations, visit <https://editor.nomics.world/filters>.",
         "\n",
         paste0(
           "If multiple filters are applied then 'filters' must be a unnamed ",

@@ -1,6 +1,6 @@
 # rdbnomics 0.5.0
 
-* New filters tool from <https://editor.dbnomics.org/filters>.
+* New filters tool from <https://editor.nomics.world/filters>.
 * If the retrieved dataset contains columns with codes (like ISO codes), then
   correspondences are performed to translate these codes if possible.
 * Internal function `get_data` better handles errors. The message is clearer.
