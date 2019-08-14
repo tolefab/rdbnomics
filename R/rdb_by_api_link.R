@@ -24,14 +24,20 @@
 #' \code{curl_fetch_memory} (except \code{url} of course). It means that
 #' \code{curl_config = h} is equivalent to
 #' \code{curl_config = list(handle = h)}.
-#' If none of the elments is a \code{curl_handle} object then a temporary
+#' If none of the elements is a \code{curl_handle} object then a temporary
 #' \code{curl_handle} object is created internally with options equal to
 #' \code{curl_config}.\cr
 #' For \code{curl_fetch_memory} arguments see \code{\link[curl]{curl_fetch}}.
 #' For available curl options see \code{\link[curl]{curl_options}},
 #' \code{names(curl_options())} and
 #' \href{https://curl.haxx.se/libcurl/c/curl_easy_setopt.html}{libcurl}.
-#' @param filters Named list (default \code{NULL}).
+#' @param filters Named list (default \code{NULL}). This argument must be a named
+#' list for one filter because the function \code{toJSON} of the package \pkg{jsonlite}
+#' is used before sending the request to the server. For multiple filters,
+#' you have to provide a list of valid filters (see examples).\cr
+#' A valid filter is a named list with an element \code{code}, a character string,
+#' and an element \code{parameters}, a named list with elements \code{frequency}
+#' and \code{method} or a NULL.
 #' @return A \code{data.frame} or a \code{data.table}.
 #' @examples
 #' \dontrun{
@@ -55,6 +61,21 @@
 #' 
 #' ## Use a specific proxy to fetch the data
 #' # Fetch one series from the dataset 'Doing Business' of WB provider :
+#' h <- list(
+#'   proxy = "<proxy>",
+#'   proxyport = <port>,
+#'   proxyusername = "<username>",
+#'   proxypassword = "<password>"
+#' )
+#' options(rdbnomics.curl_config = h)
+#' df2 <- rdb_by_api_link(
+#'   paste0(
+#'     'https://api.db.nomics.world/v22/series/WB/DB?dimensions=%7B%22',
+#'     'indicator%22%3A%5B%22IC.REG.PROC.FE.NO%22%5D%7D&q=Doing%20Business',
+#'     '&observations=1&format=json&align_periods=1&offset=0&facets=0'
+#'   )
+#' )
+#' # or
 #' h <- curl::new_handle(
 #'   proxy = "<proxy>",
 #'   proxyport = <port>,
@@ -98,6 +119,32 @@
 #'     '&observations=1&format=json&align_periods=1&offset=0&facets=0'
 #'   ),
 #'   use_readLines = TRUE
+#' )
+#' 
+#' 
+#' ## Apply filter(s) to the series
+#' # One filter
+#' df3 <- rdb_by_api_link(
+#'   'https://api.db.nomics.world/v22/series/IMF/WEO/ABW.BCA?observations=1',
+#'   filters = list(
+#'     code = "interpolate",
+#'     parameters = list(frequency = "daily", method = "spline")
+#'   )
+#' )
+#' 
+#' # Two filters
+#' df3 <- rdb_by_api_link(
+#'   'https://api.db.nomics.world/v22/series/IMF/WEO/ABW.BCA?observations=1',
+#'   filters = list(
+#'     list(
+#'       code = "interpolate",
+#'       parameters = list(frequency = "quarterly", method = "spline")
+#'     ),
+#'     list(
+#'       code = "aggregate",
+#'       parameters = list(frequency = "annual", method = "average")
+#'     )
+#'   )
 #' )
 #' }
 #' @seealso \code{\link{rdb}}

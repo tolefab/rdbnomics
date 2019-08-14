@@ -27,9 +27,15 @@ package \pkg{jsonlite}) is applied to generate the json object.}
 \item{mask}{Character string (default \code{NULL}). DBnomics code of one or
 several masks in the specified provider and dataset.}
 
-\item{filters}{Named list.}
+\item{filters}{Named list (default \code{TRUE}). This argument must be a named
+list for one filter because the function \code{toJSON} of the package \pkg{jsonlite}
+is used before sending the request to the server. For multiple filters,
+you have to provide a list of valid filters (see examples).\cr
+A valid filter is a named list with an element \code{code}, a character string,
+and an element \code{parameters}, a named list with elements \code{frequency}
+and \code{method} or a NULL.}
 
-\item{verbose}{Logical (default \code{TRUE}). Show warnings of the function.}
+\item{verbose}{Logical (default \code{NULL}). Show warnings of the function.}
 
 \item{...}{Arguments to be passed to \code{\link{rdb_by_api_link}}. These
 arguments concern connection configuration. See \code{\link{rdb_by_api_link}}
@@ -114,15 +120,6 @@ df4 <- rdb('IMF', 'CPI', mask = 'M..PCPIEC_IX+PCPIA_IX')
 
 ## Use a specific proxy to fetch the data
 # Fetch one series from dataset 'Unemployment rate' (ZUTN) of AMECO provider :
-h <- curl::new_handle(
-  proxy = "<proxy>",
-  proxyport = <port>,
-  proxyusername = "<username>",
-  proxypassword = "<password>"
-)
-options(rdbnomics.curl_config = h)
-df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN')
-# or
 h <- list(
   proxy = "<proxy>",
   proxyport = <port>,
@@ -131,7 +128,17 @@ h <- list(
 )
 options(rdbnomics.curl_config = h)
 df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN')
+# or
+h <- curl::new_handle(
+  proxy = "<proxy>",
+  proxyport = <port>,
+  proxyusername = "<username>",
+  proxypassword = "<password>"
+)
+options(rdbnomics.curl_config = h)
+df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN')
 # or to use once
+options(rdbnomics.curl_config = NULL)
 df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN', curl_config = h)
 
 
@@ -141,10 +148,10 @@ options(rdbnomics.use_readLines = TRUE)
 df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN')
 # or to use once
 df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN', use_readLines = TRUE)
-}
 
 
-## Apply filter(s) to series
+## Apply filter(s) to the series
+# One filter
 df1 <- rdb(
   ids = c("IMF/WEO/ABW.BCA", "IMF/WEO/ABW.BCA_NGDPD"),
   filters = list(
@@ -153,6 +160,7 @@ df1 <- rdb(
   )
 )
 
+# Two filters
 df1 <- rdb(
   ids = c("IMF/WEO/ABW.BCA", "IMF/WEO/ABW.BCA_NGDPD"),
   filters = list(
@@ -166,6 +174,7 @@ df1 <- rdb(
     )
   )
 )
+}
 }
 \seealso{
 \code{\link{rdb_by_api_link}}
