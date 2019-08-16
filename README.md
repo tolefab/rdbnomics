@@ -169,7 +169,7 @@ If you just want to do it once, you may use the argument `use_readLines` of the 
 df1 <- rdb(ids = 'AMECO/ZUTN/EA19.1.0.0.0.ZUTN', use_readLines = TRUE)
 ```
 
-# Transform time series with filters
+## Transform time series with filters
 The **rdbnomics** package can interact with the *Time Series Editor* of DBnomics to transform time series by applying filters to them.  
 Available filters are listed on the filters page [https://editor.nomics.world/filters](https://editor.nomics.world/filters).
 
